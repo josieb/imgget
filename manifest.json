@@ -1,0 +1,31 @@
+{
+  "manifest_version": 2,
+
+  "name": "imgget",
+  "version": "0.0.0",
+  
+  "description": "Get the images from a bunch of thumbnail links.",
+  "icons": {
+    "128": "images/icon.png"
+  },
+
+  "permissions": [
+    "<all_urls>",
+    "downloads",
+    "tabs"
+  ],
+  "background": {
+    "persistent": false,
+	"scripts": ["javascript/background.js"]
+  },
+  "content_scripts": [{
+	"matches": ["http://*/*"],
+	"js": ["javascript/content.js"],
+	"run_at": "document_idle",
+	"all_frames": false
+  }],
+  "page_action": {
+    "default_icon": "images/icon.png",
+    "default_popup": "views/popup.html"
+  }
+}
