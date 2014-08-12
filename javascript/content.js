@@ -1,6 +1,6 @@
 "use strict";
 
-/* Send a message to the background. */
+/* Immediately send a message to the background. */
 chrome.runtime.sendMessage({
   from: 'content',
   subject: 'showPageAction'
@@ -14,16 +14,16 @@ chrome.runtime.onMessage.addListener(function(message, sender, response) {
   if ( (message.from === 'popup') && (message.subject === 'DOMInfo') ) {
     var domInfo = [];
     var images = document.getElementsByTagName('img');
-	for (var i = 0; i < images.length; i++) {
-	  var url = images[i].parentNode.getAttribute('href');
+    for (var i = 0; i < images.length; i++) {
+      var url = images[i].parentNode.getAttribute('href');
 
-	  if (url && (url.indexOf('//') >= 0) ) {
-	    domInfo.push({
-		  url: url,
-		  src: images[i].getAttribute('src')
-		});
-	  }
-	}
+      if ( url && (url.indexOf('//') >= 0) ) {
+        domInfo.push({
+          url: url,
+          src: images[i].getAttribute('src')
+        });
+      }
+    }
     response(domInfo);
   }
 });
