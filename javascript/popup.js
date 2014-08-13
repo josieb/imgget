@@ -103,4 +103,24 @@ window.onload = function() {
 	  }
 	}
   };
+
+  document.getElementById('select-all').onclick = function() {
+    var inputs = document.getElementsByTagName('input');
+    for (var i = 0; i < inputs.length; i++) {
+      inputs[i].checked = true;
+	  var sibling = inputs[i].parentNode.parentNode.lastChild.lastChild;
+      console.log(sibling.src);
+	  thumbChecks[sibling.src]['download'] = true;
+    }
+  };
+
+  document.getElementById('select-none').onclick = function() {
+    var inputs = document.getElementsByTagName('input');
+    for (var i = 0; i < inputs.length; i++) {
+      inputs[i].checked = false;
+	  var sibling = inputs[i].parentNode.parentNode.lastChild.lastChild;
+      console.log(sibling.src);
+	  thumbChecks[sibling.src]['download'] = false;
+    }
+  };
 };
