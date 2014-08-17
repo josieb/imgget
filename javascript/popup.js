@@ -18,6 +18,7 @@ var handleLoad = function(e) {
   var documentBuffer = document.createElement('body');
   documentBuffer.innerHTML = e.target.responseText;
 
+  // Try to find a well-formed url.
   var image = document.evaluate('//img[@id][@style]', documentBuffer, null, 9, null).singleNodeValue;
   var src = (image ? image.getAttribute('src') : null);
 
@@ -48,37 +49,33 @@ var handleLoad = function(e) {
  * @public
  */
 var handleDOMInfo = function(domInfo) {
-  var thumbsTable = document.getElementById('thumbs');
-  while (thumbsTable.children.length > 1) {
-    thumbsTable.removeChild(thumbsTable.children[thumbsTable.children.length - 1])
+  var thumbsList = document.getElementById('thumbs');
+  while (thumbsList.children.length > 1) {
+    thumbsList.removeChild(thumbsList.children[thumbsList.children.length - 1])
   }
 
   for (var i = 0; i < domInfo.length; i++) {
     var checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
-    checkbox.checked = true;
-    var col0 = document.createElement('td');
-    col0.appendChild(checkbox);
+    checkbox.checked = false;
 
-	var thumb = document.createElement('img');
+    var thumb = document.createElement('img');
 	thumb.src = domInfo[i].src;
     thumb.alt = domInfo[i].url;
     thumb.onclick = function() {
-	  var sibling = this.parentNode.parentNode.firstChild.firstChild;
+	  var sibling = this.previousSibling;
 	  sibling.checked = !sibling.checked;
 	  thumbChecks[this.src]['download'] = sibling.checked;
     }
-    var col1 = document.createElement('td');
-	col1.appendChild(thumb);
 
-    var row = document.createElement('tr');
-    row.appendChild(col0);
-    row.appendChild(col1);
-    thumbsTable.appendChild(row);
+    var listItem = document.createElement('li');
+    listItem.appendChild(checkbox);
+    listItem.appendChild(thumb);
+    thumbsList.appendChild(listItem);
 
-	thumbChecks[domInfo[i].src] = {};
-    thumbChecks[domInfo[i].src]['download'] = true;
-    thumbChecks[domInfo[i].src]['url'] = domInfo[i].url;
+	thumbChecks[ domInfo[i].src ] = {};
+    thumbChecks[ domInfo[i].src ]['download'] = false;
+    thumbChecks[ domInfo[i].src ]['url'] = domInfo[i].url;
   }
 };
 
@@ -90,6 +87,14 @@ document.addEventListener('DOMContentLoaded', function() {
       {from: 'popup', subject: 'DOMInfo'},
       handleDOMInfo);
   });
+});
+
+document.addEventListener('click', function() {
+  var numSelected = 0;
+  for (var i in thumbChecks) {
+    if (thumbChecks[i]['download']) numSelected++;
+  }
+  document.getElementById('num-selected').innerHTML = "selected: " + numSelected;
 });
 
 window.onload = function() {
@@ -108,8 +113,7 @@ window.onload = function() {
     var inputs = document.getElementsByTagName('input');
     for (var i = 0; i < inputs.length; i++) {
       inputs[i].checked = true;
-	  var sibling = inputs[i].parentNode.parentNode.lastChild.lastChild;
-      console.log(sibling.src);
+	  var sibling = inputs[i].nextSibling;
 	  thumbChecks[sibling.src]['download'] = true;
     }
   };
@@ -118,8 +122,7 @@ window.onload = function() {
     var inputs = document.getElementsByTagName('input');
     for (var i = 0; i < inputs.length; i++) {
       inputs[i].checked = false;
-	  var sibling = inputs[i].parentNode.parentNode.lastChild.lastChild;
-      console.log(sibling.src);
+	  var sibling = inputs[i].nextSibling;
 	  thumbChecks[sibling.src]['download'] = false;
     }
   };
