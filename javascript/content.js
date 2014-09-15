@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /* Immediately send a message to the background. */
 chrome.runtime.sendMessage({

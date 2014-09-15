@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /**
  * @type {hashmap}
@@ -60,12 +60,12 @@ var handleDOMInfo = function(domInfo) {
     checkbox.checked = false;
 
     var thumb = document.createElement('img');
-	thumb.src = domInfo[i].src;
+    thumb.src = domInfo[i].src;
     thumb.alt = domInfo[i].url;
     thumb.onclick = function() {
-	  var sibling = this.previousSibling;
-	  sibling.checked = !sibling.checked;
-	  thumbChecks[this.src]['download'] = sibling.checked;
+      var sibling = this.previousSibling;
+      sibling.checked = !sibling.checked;
+      thumbChecks[this.src]['download'] = sibling.checked;
     }
 
     var listItem = document.createElement('li');
@@ -73,7 +73,7 @@ var handleDOMInfo = function(domInfo) {
     listItem.appendChild(thumb);
     thumbsList.appendChild(listItem);
 
-	thumbChecks[ domInfo[i].src ] = {};
+    thumbChecks[ domInfo[i].src ] = {};
     thumbChecks[ domInfo[i].src ]['download'] = false;
     thumbChecks[ domInfo[i].src ]['url'] = domInfo[i].url;
   }
@@ -94,27 +94,27 @@ document.addEventListener('click', function() {
   for (var i in thumbChecks) {
     if (thumbChecks[i]['download']) numSelected++;
   }
-  document.getElementById('num-selected').innerHTML = "selected: " + numSelected;
+  document.getElementById('num-selected').innerHTML = 'selected: ' + numSelected;
 });
 
 window.onload = function() {
   document.getElementById('download').onclick = function() {
     for (var i in thumbChecks) {
-	  if (thumbChecks[i]['download']) {
+      if (thumbChecks[i]['download']) {
         var request = new XMLHttpRequest();
         request.open('GET', thumbChecks[i]['url'], true);
         request.onload = handleLoad;
         request.send(null);
-	  }
-	}
+      }
+    }
   };
 
   document.getElementById('select-all').onclick = function() {
     var inputs = document.getElementsByTagName('input');
     for (var i = 0; i < inputs.length; i++) {
       inputs[i].checked = true;
-	  var sibling = inputs[i].nextSibling;
-	  thumbChecks[sibling.src]['download'] = true;
+      var sibling = inputs[i].nextSibling;
+      thumbChecks[sibling.src]['download'] = true;
     }
   };
 
@@ -122,8 +122,8 @@ window.onload = function() {
     var inputs = document.getElementsByTagName('input');
     for (var i = 0; i < inputs.length; i++) {
       inputs[i].checked = false;
-	  var sibling = inputs[i].nextSibling;
-	  thumbChecks[sibling.src]['download'] = false;
+      var sibling = inputs[i].nextSibling;
+      thumbChecks[sibling.src]['download'] = false;
     }
   };
 };

@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /* Listen for messages from the content. */
 chrome.runtime.onMessage.addListener(function(message, sender) {
