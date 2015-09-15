@@ -18,9 +18,14 @@ var handleLoad = function(e) {
   var documentBuffer = document.createElement('body');
   documentBuffer.innerHTML = e.target.responseText;
 
-  // Try to find a well-formed url.
+  /* Try to find a well-formed url. */
   var image = document.evaluate('//img[@id][@style]', documentBuffer, null, 9, null).singleNodeValue;
   var src = (image ? image.getAttribute('src') : null);
+
+  if ( !image || !src ) {
+    image = documentBuffer.querySelectorAll('.image')[0];
+    src = (image ? image.src : null);
+  }
 
   if ( !image || !src ) {
     image = documentBuffer.querySelectorAll('#img')[0];
@@ -32,7 +37,11 @@ var handleLoad = function(e) {
     src = (image ? image.src : null);
   }
 
-  if (!src) return;
+  if (!src) {
+    console.log("Unable to find image for" + documentBuffer.innerHTML);
+    return;
+  }
+
   if ( src.indexOf('chrome-extension') >= 0 ) {
     var baseURL = e.target.responseURL.match(/^.+?[^\/:](?=[?\/]|$)/);
     src = src.replace(/chrome-extension:\/\/.*\/views\//, '')
