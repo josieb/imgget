@@ -7,6 +7,18 @@
 var thumbChecks = {};
 
 /**
+ * @type {array}
+ * @public
+ */
+var selectors = [
+  '.image',
+  '#image',
+  '#img',
+  '#thepic',
+  '#image-viewer-container'
+];
+
+/**
  * Handle the 'onload' event of our XHR request. The responseText of the event
  * should be an HTML document. Once this is parsed into a DOMElement, we
  * search it for the source of the demanded image, and then download the image.
@@ -18,29 +30,37 @@ var handleLoad = function(e) {
   var documentBuffer = document.createElement('body');
   documentBuffer.innerHTML = e.target.responseText;
 
-  /* Try to find a well-formed url. */
+  /* Try to find a well-formed image source. */
   var image = document.evaluate('//img[@id][@style]', documentBuffer, null, 9, null).singleNodeValue;
   var src = (image ? image.getAttribute('src') : null);
 
-  if ( !image || !src ) {
-    image = documentBuffer.querySelectorAll('.image')[0];
-    src = (image ? image.src : null);
-  }
+  try {
+    for (var i = 0; i < selectors.length; i++) {
+      if (src) break;
+      image = documentBuffer.querySelector(selectors[i]);
 
-  if ( !image || !src ) {
-    image = documentBuffer.querySelectorAll('#img')[0];
-    src = (image ? image.src : null);
-  }
+      if (image) {
+        if (image.src !== undefined) {
+          src = image.src;
+        } else if ( (image.firstChild !== null) && (image.firstChild.src !== undefined) ) {
+          src = image.firstChild.src;
+        }
+      }
+    }
 
-  if ( !image || !src ) {
-    image = documentBuffer.querySelectorAll('#thepic')[0];
-    src = (image ? image.src : null);
-  }
-
-  if (!src) {
-    console.log("Unable to find image for" + documentBuffer.innerHTML);
+    if (!src) {
+      console.warn('Unable to find image');
+      return;
+    }
+  } catch (e) {
+    console.warn(e);
     return;
   }
+
+  console.info('Found source:', src);
+
+  /* Try to get the full-sized image. */
+  src = src.replace(/(\.md\.)|(\.sm\.)/, '.');
 
   if ( src.indexOf('chrome-extension') >= 0 ) {
     var baseURL = e.target.responseURL.match(/^.+?[^\/:](?=[?\/]|$)/);

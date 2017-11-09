@@ -17,7 +17,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, response) {
     for (var i = 0; i < images.length; i++) {
       var url = images[i].parentNode.getAttribute('href');
 
-      if ( url && (url.indexOf('http://') >= 0) ) {
+      if ( url && (url.indexOf('http') >= 0) ) {
         domInfo.push({
           url: url,
           src: images[i].getAttribute('src')
