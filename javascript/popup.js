@@ -48,6 +48,15 @@ var handleLoad = function(e) {
           src = image.firstChild.src;
         }
       }
+
+      /* Try to get the full-sized image. */
+      if (src) {
+        src = src.replace(/(\.md\.)|(\.sm\.)/, '.');
+      }
+
+      if (src && selectors[i] === '.view_photo') {
+        src = src.replace('\/tn-', '\/');
+      }
     }
 
     if (!src) {
@@ -59,16 +68,13 @@ var handleLoad = function(e) {
     return;
   }
 
-  console.info('Found source:', src);
-
-  /* Try to get the full-sized image. */
-  src = src.replace(/(\.md\.)|(\.sm\.)/, '.');
-
   if ( src.indexOf('chrome-extension') >= 0 ) {
     var baseURL = e.target.responseURL.match(/^.+?[^\/:](?=[?\/]|$)/);
-    src = src.replace(/chrome-extension:\/\/.*\/views\//, '')
+    src = src.replace(/chrome-extension:\/\/\w+\/(views\/)?/, '')
     src = baseURL + '/' + src;
   }
+
+  console.info('Found source:', src);
 
   chrome.downloads.download({url: src});
 };
@@ -92,11 +98,12 @@ var handleDOMInfo = function(domInfo) {
 
     var thumb = document.createElement('img');
     thumb.src = domInfo[i].src;
-    thumb.alt = domInfo[i].url;
+    thumb.url = domInfo[i].url;
+
     thumb.onclick = function() {
       var sibling = this.previousSibling;
       sibling.checked = !sibling.checked;
-      thumbChecks[this.src]['download'] = sibling.checked;
+      thumbChecks[this.src].download = sibling.checked;
     }
 
     var listItem = document.createElement('li');
@@ -104,9 +111,10 @@ var handleDOMInfo = function(domInfo) {
     listItem.appendChild(thumb);
     thumbsList.appendChild(listItem);
 
-    thumbChecks[ domInfo[i].src ] = {};
-    thumbChecks[ domInfo[i].src ]['download'] = false;
-    thumbChecks[ domInfo[i].src ]['url'] = domInfo[i].url;
+    thumbChecks[ thumb.src ] = {
+      'download': false,
+      'url': thumb.url
+    };
   }
 };
 
@@ -122,18 +130,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
 document.addEventListener('click', function() {
   var numSelected = 0;
-  for (var i in thumbChecks) {
-    if (thumbChecks[i]['download']) numSelected++;
+  for (var id in thumbChecks) {
+    if (thumbChecks[id].download) numSelected++;
   }
   document.getElementById('num-selected').innerHTML = 'selected: ' + numSelected;
 });
 
 window.onload = function() {
   document.getElementById('download').onclick = function() {
-    for (var i in thumbChecks) {
-      if (thumbChecks[i]['download']) {
+    for (var id in thumbChecks) {
+      if (thumbChecks[id].download) {
         var request = new XMLHttpRequest();
-        request.open('GET', thumbChecks[i]['url'], true);
+        request.open('GET', thumbChecks[id].url, true);
         request.onload = handleLoad;
         request.send(null);
       }
@@ -145,7 +153,7 @@ window.onload = function() {
     for (var i = 0; i < inputs.length; i++) {
       inputs[i].checked = true;
       var sibling = inputs[i].nextSibling;
-      thumbChecks[sibling.src]['download'] = true;
+      thumbChecks[sibling.src].download = true;
     }
   };
 
@@ -154,7 +162,7 @@ window.onload = function() {
     for (var i = 0; i < inputs.length; i++) {
       inputs[i].checked = false;
       var sibling = inputs[i].nextSibling;
-      thumbChecks[sibling.src]['download'] = false;
+      thumbChecks[sibling.src].download = false;
     }
   };
 };
