@@ -11,11 +11,13 @@ var thumbChecks = {};
  * @public
  */
 var selectors = [
-  '.image',
-  '#image',
   '#img',
+  '#image',
+  '#imageid',
+  '#image-viewer-container',
   '#thepic',
-  '#image-viewer-container'
+  '.image',
+  '.view_photo'
 ];
 
 /**
