@@ -34,7 +34,17 @@ var handleLoad = function(e) {
 
   /* Try to find a well-formed image source. */
   var image = document.evaluate('//img[@id][@style]', documentBuffer, null, 9, null).singleNodeValue;
-  var src = (image ? image.getAttribute('src') : null);
+  var src;
+
+  if (image) {
+    if (image.getAttribute('data-url')) {
+      src = image.getAttribute('data-url');
+    } else if (image.getAttribute('src')) {
+      src = image.getAttribute('src');
+    } else {
+      console.warn('Unable to find image')
+    }
+  }
 
   try {
     for (var i = 0; i < selectors.length; i++) {
@@ -60,7 +70,7 @@ var handleLoad = function(e) {
     }
 
     if (!src) {
-      console.warn('Unable to find image');
+      console.warn('Unable to find link');
       return;
     }
   } catch (e) {

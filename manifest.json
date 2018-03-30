@@ -2,7 +2,7 @@
   "manifest_version": 2,
 
   "name": "imgget",
-  "version": "0.0.0",
+  "version": "0.0.1",
   
   "description": "Get the images from a bunch of thumbnail links.",
   "icons": {
@@ -16,13 +16,13 @@
   ],
   "background": {
     "persistent": false,
-	"scripts": ["javascript/background.js"]
+    "scripts": ["javascript/background.js"]
   },
   "content_scripts": [{
-	"matches": ["http://*/*"],
-	"js": ["javascript/content.js"],
-	"run_at": "document_idle",
-	"all_frames": false
+    "matches": ["http://*/*", "https://*/*"],
+    "js": ["javascript/content.js"],
+    "run_at": "document_idle",
+    "all_frames": false
   }],
   "page_action": {
     "default_icon": "images/icon.png",

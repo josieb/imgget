@@ -16,11 +16,20 @@ chrome.runtime.onMessage.addListener(function(message, sender, response) {
     var images = document.getElementsByTagName('img');
     for (var i = 0; i < images.length; i++) {
       var url = images[i].parentNode.getAttribute('href');
+      var src;
+
+      if (images[i].getAttribute('data-url')) {
+        src = images[i].getAttribute('data-url');
+      } else if (images[i].getAttribute('src')) {
+        src = images[i].getAttribute('src');
+      } else {
+        console.warn('Unable to find thumbnail')
+      }
 
       if ( url && (url.indexOf('http') >= 0) ) {
         domInfo.push({
           url: url,
-          src: images[i].getAttribute('src')
+          src: src
         });
       }
     }
