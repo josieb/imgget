@@ -15,10 +15,21 @@ chrome.runtime.onMessage.addListener(function(message, sender, response) {
     var domInfo = [];
     var images = document.getElementsByTagName('img');
     for (var i = 0; i < images.length; i++) {
-      var url = images[i].parentNode.getAttribute('href');
+      var a = images[i].parentNode;
+      var url;
       var src;
 
-      if (images[i].getAttribute('data-url')) {
+      if (a) {
+        if (a.href) {
+          url = a.href;
+        } else {
+          url = a.getAttribute('href');
+        }
+      }
+
+      if (images[i].src) {
+        src = images[i].src;
+      } else if (images[i].getAttribute('data-url')) {
         src = images[i].getAttribute('data-url');
       } else if (images[i].getAttribute('src')) {
         src = images[i].getAttribute('src');
@@ -31,6 +42,8 @@ chrome.runtime.onMessage.addListener(function(message, sender, response) {
           url: url,
           src: src
         });
+      } else {
+        console.warn('Unable to find parent url');
       }
     }
     response(domInfo);

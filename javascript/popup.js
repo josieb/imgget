@@ -37,12 +37,12 @@ var handleLoad = function(e) {
   var src;
 
   if (image) {
-    if (image.getAttribute('data-url')) {
+    if (image.src) {
+      src = image.src;
+    } else if (image.getAttribute('data-url')) {
       src = image.getAttribute('data-url');
     } else if (image.getAttribute('src')) {
       src = image.getAttribute('src');
-    } else {
-      console.warn('Unable to find image')
     }
   }
 
@@ -79,9 +79,14 @@ var handleLoad = function(e) {
   }
 
   if ( src.indexOf('chrome-extension') >= 0 ) {
-    var baseURL = e.target.responseURL.match(/^.+?[^\/:](?=[?\/]|$)/);
+    // The following line of code matches the base URL, however it does not
+    // match trailing directories which may be required:
+    // var baseURL = e.target.responseURL.match(/^.+?[^\/:](?=[?\/]|$)/);
+    var responseURL = e.target.responseURL;
+    var splitResponseURL = responseURL.split('/');
+    var baseURL = responseURL.replace(splitResponseURL[splitResponseURL.length - 1], '');
     src = src.replace(/chrome-extension:\/\/\w+\/(views\/)?/, '')
-    src = baseURL + '/' + src;
+    src = baseURL + src;
   }
 
   console.info('Found source:', src);
