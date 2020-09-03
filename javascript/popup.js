@@ -10,14 +10,23 @@ var thumbChecks = {};
  * @type {array}
  * @public
  */
-var selectors = [
+var imageSelectors = [
+  'pic img img-responsive'
+];
+
+/**
+ * @type {array}
+ * @public
+ */
+var srcSelectors = [
   '#img',
   '#image',
   '#imageid',
   '#image-viewer-container',
   '#thepic',
-  '.image',
-  '.view_photo'
+  'img.image',
+  'img.view_photo',
+  'img.pic,img.img,img.img-responsive'
 ];
 
 /**
@@ -32,9 +41,10 @@ var handleLoad = function(e) {
   var documentBuffer = document.createElement('body');
   documentBuffer.innerHTML = e.target.responseText;
 
+  var src;
+
   /* Try to find a well-formed image source. */
   var image = document.evaluate('//img[@id][@style]', documentBuffer, null, 9, null).singleNodeValue;
-  var src;
 
   if (image) {
     if (image.src) {
@@ -44,38 +54,38 @@ var handleLoad = function(e) {
     } else if (image.getAttribute('src')) {
       src = image.getAttribute('src');
     }
-  }
+  } else {
+    try {
+      for (var i = 0; i < srcSelectors.length; i++) {
+        if (src) break;
+        image = documentBuffer.querySelector(srcSelectors[i]);
 
-  try {
-    for (var i = 0; i < selectors.length; i++) {
-      if (src) break;
-      image = documentBuffer.querySelector(selectors[i]);
+        if (image) {
+          if (image.src !== undefined) {
+            src = image.src;
+          } else if ( (image.firstChild !== null) && (image.firstChild.src !== undefined) ) {
+            src = image.firstChild.src;
+          }
+        }
 
-      if (image) {
-        if (image.src !== undefined) {
-          src = image.src;
-        } else if ( (image.firstChild !== null) && (image.firstChild.src !== undefined) ) {
-          src = image.firstChild.src;
+        /* Try to get the full-sized image. */
+        if (src) {
+          src = src.replace(/(\.md\.)|(\.sm\.)/, '.');
+        }
+
+        if (src && srcSelectors[i] === '.view_photo') {
+          src = src.replace('\/tn-', '\/');
         }
       }
 
-      /* Try to get the full-sized image. */
-      if (src) {
-        src = src.replace(/(\.md\.)|(\.sm\.)/, '.');
+      if (!src) {
+        console.warn('Unable to find link');
+        return;
       }
-
-      if (src && selectors[i] === '.view_photo') {
-        src = src.replace('\/tn-', '\/');
-      }
-    }
-
-    if (!src) {
-      console.warn('Unable to find link');
+    } catch (e) {
+      console.warn(e);
       return;
     }
-  } catch (e) {
-    console.warn(e);
-    return;
   }
 
   if ( src.indexOf('chrome-extension') >= 0 ) {
