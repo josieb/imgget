@@ -15,7 +15,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, response) {
     var domInfo = [];
     var images = document.getElementsByTagName('img');
     for (var i = 0; i < images.length; i++) {
-      var a = images[i].parentNode;
+      var a = images[i].closest('a');
       var url;
       var src;
 
@@ -34,7 +34,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, response) {
       } else if (images[i].getAttribute('src')) {
         src = images[i].getAttribute('src');
       } else {
-        console.warn('Unable to find thumbnail')
+        console.log(`Unable to find thumbnail: ${images[i].src}`)
       }
 
       if ( url && (url.indexOf('http') >= 0) ) {
@@ -43,7 +43,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, response) {
           src: src
         });
       } else {
-        console.warn('Unable to find parent url');
+        console.log(`Unable to find parent url: ${images[i].src}`);
       }
     }
     response(domInfo);

@@ -1,8 +1,8 @@
 imgget
 ======
 
-A Google Chrome extension for batch getting a set of images for their
-respective thumbnail hyperlinks.
+A Google Chrome extension for batch getting a set of full-sized images from
+their respective thumbnail hyperlinks.
 
 ## TODO
 

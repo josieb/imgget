@@ -2,9 +2,9 @@
   "manifest_version": 2,
 
   "name": "imgget",
-  "version": "0.0.3",
+  "version": "0.0.4",
   
-  "description": "Get the images from a bunch of thumbnail links.",
+  "description": "Get fully-sized images from a group of thumbnail links.",
   "icons": {
     "128": "images/icon.png"
   },

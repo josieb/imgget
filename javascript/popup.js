@@ -26,7 +26,10 @@ var srcSelectors = [
   '#thepic',
   'img.image',
   'img.view_photo',
-  'img.pic,img.img,img.img-responsive'
+  'img.pic,img.img,img.img-responsive',
+  '.centred_resized',
+  '.main-image',
+  '.FFVAD'
 ];
 
 /**
@@ -79,7 +82,7 @@ var handleLoad = function(e) {
       }
 
       if (!src) {
-        console.warn('Unable to find link');
+        console.log(`Unable to find image link: ${e.target.responseURL}`);
         return;
       }
     } catch (e) {
@@ -99,7 +102,7 @@ var handleLoad = function(e) {
     src = baseURL + src;
   }
 
-  console.info('Found source:', src);
+  console.info(`Found source: ${src}`);
 
   chrome.downloads.download({url: src});
 };
