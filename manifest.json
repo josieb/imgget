@@ -18,6 +18,9 @@
     "persistent": false,
     "scripts": ["javascript/background.js"]
   },
+  "sandbox": {
+    "pages": ["views/sandbox.html"]
+  },
   "content_scripts": [{
     "matches": ["http://*/*", "https://*/*"],
     "js": ["javascript/content.js"],

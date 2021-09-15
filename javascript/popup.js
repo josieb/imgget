@@ -7,32 +7,6 @@
 var thumbChecks = {};
 
 /**
- * @type {array}
- * @public
- */
-var imageSelectors = [
-  'pic img img-responsive'
-];
-
-/**
- * @type {array}
- * @public
- */
-var srcSelectors = [
-  '#img',
-  '#image',
-  '#imageid',
-  '#image-viewer-container',
-  '#thepic',
-  'img.image',
-  'img.view_photo',
-  'img.pic,img.img,img.img-responsive',
-  '.centred_resized',
-  '.main-image',
-  '.FFVAD'
-];
-
-/**
  * Handle the 'onload' event of our XHR request. The responseText of the event
  * should be an HTML document. Once this is parsed into a DOMElement, we
  * search it for the source of the demanded image, and then download the image.
@@ -41,70 +15,12 @@ var srcSelectors = [
  * @public
  */
 var handleLoad = function(e) {
-  var documentBuffer = document.createElement('body');
-  documentBuffer.innerHTML = e.target.responseText;
-
-  var src;
-
-  /* Try to find a well-formed image source. */
-  var image = document.evaluate('//img[@id][@style]', documentBuffer, null, 9, null).singleNodeValue;
-
-  if (image) {
-    if (image.src) {
-      src = image.src;
-    } else if (image.getAttribute('data-url')) {
-      src = image.getAttribute('data-url');
-    } else if (image.getAttribute('src')) {
-      src = image.getAttribute('src');
-    }
-  } else {
-    try {
-      for (var i = 0; i < srcSelectors.length; i++) {
-        if (src) break;
-        image = documentBuffer.querySelector(srcSelectors[i]);
-
-        if (image) {
-          if (image.src !== undefined) {
-            src = image.src;
-          } else if ( (image.firstChild !== null) && (image.firstChild.src !== undefined) ) {
-            src = image.firstChild.src;
-          }
-        }
-
-        /* Try to get the full-sized image. */
-        if (src) {
-          src = src.replace(/(\.md\.)|(\.sm\.)/, '.');
-        }
-
-        if (src && srcSelectors[i] === '.view_photo') {
-          src = src.replace('\/tn-', '\/');
-        }
-      }
-
-      if (!src) {
-        console.log(`Unable to find image link: ${e.target.responseURL}`);
-        return;
-      }
-    } catch (e) {
-      console.warn(e);
-      return;
-    }
-  }
-
-  if ( src.indexOf('chrome-extension') >= 0 ) {
-    // The following line of code matches the base URL, however it does not
-    // match trailing directories which may be required:
-    // var baseURL = e.target.responseURL.match(/^.+?[^\/:](?=[?\/]|$)/);
-    var responseURL = e.target.responseURL;
-    var splitResponseURL = responseURL.split('/');
-    var baseURL = responseURL.replace(splitResponseURL[splitResponseURL.length - 1], '');
-    src = src.replace(/chrome-extension:\/\/\w+\/(views\/)?/, '')
-    src = baseURL + src;
-  }
-
-  console.info(`Found source: ${src}`);
-
-  chrome.downloads.download({url: src});
+  var iframe = document.getElementById('iframe');
+  var message = {
+    command: 'render',
+    context: {target: e.target.responseText}
+  };
+  iframe.contentWindow.postMessage(message, '*');
 };
 
 /**
@@ -194,3 +110,22 @@ window.onload = function() {
     }
   };
 };
+
+window.addEventListener('message', function(event) {
+  var src = event.data.src;
+
+  if ( src.indexOf('chrome-extension') >= 0 ) {
+    // The following line of code matches the base URL, however it does not
+    // match trailing directories which may be required:
+    // var baseURL = e.target.responseURL.match(/^.+?[^\/:](?=[?\/]|$)/);
+    var responseURL = e.target.responseURL;
+    var splitResponseURL = responseURL.split('/');
+    var baseURL = responseURL.replace(splitResponseURL[splitResponseURL.length - 1], '');
+    src = src.replace(/chrome-extension:\/\/\w+\/(views\/)?/, '')
+    src = baseURL + src;
+  }
+
+  console.info(`Found source: ${src}`);
+
+  chrome.downloads.download({url: src});
+});
