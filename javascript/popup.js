@@ -33,18 +33,14 @@ var srcSelectors = [
 ];
 
 /**
- * Handle the 'onload' event of our XHR request. The responseText of the event
- * should be an HTML document. Once this is parsed into a DOMElement, we
- * search it for the source of the demanded image, and then download the image.
- *
- * @param {ProgressEvent} e The XHR ProgressEvent.
+ * @param {String} responseText
+ * @return {String}
  * @public
  */
-var handleLoad = function(e) {
-  var documentBuffer = document.createElement('body');
-  documentBuffer.innerHTML = e.target.responseText;
-
+var processText = function(responseText) {
   var src;
+  var documentBuffer = document.createElement('body');
+  documentBuffer.innerHTML = responseText;
 
   /* Try to find a well-formed image source. */
   var image = document.evaluate('//img[@id][@style]', documentBuffer, null, 9, null).singleNodeValue;
@@ -80,31 +76,49 @@ var handleLoad = function(e) {
           src = src.replace('\/tn-', '\/');
         }
       }
-
-      if (!src) {
-        console.log(`Unable to find image link: ${e.target.responseURL}`);
-        return;
-      }
-    } catch (e) {
-      console.warn(e);
+    } catch (error) {
+      console.warn(error);
       return;
     }
   }
 
-  if ( src.indexOf('chrome-extension') >= 0 ) {
-    // The following line of code matches the base URL, however it does not
-    // match trailing directories which may be required:
-    // var baseURL = e.target.responseURL.match(/^.+?[^\/:](?=[?\/]|$)/);
-    var responseURL = e.target.responseURL;
-    var splitResponseURL = responseURL.split('/');
-    var baseURL = responseURL.replace(splitResponseURL[splitResponseURL.length - 1], '');
-    src = src.replace(/chrome-extension:\/\/\w+\/(views\/)?/, '')
-    src = baseURL + src;
+  return src;
+};
+
+/**
+ * Handle the 'onload' event of our XHR request. The responseText of the event
+ * should be an HTML document. Once this is parsed into a DOMElement, we
+ * search it for the source of the demanded image, and then download the image.
+ *
+ * @param {ProgressEvent} e The XHR ProgressEvent.
+ * @public
+ */
+var handleLoad = function(e) {
+  var src;
+  var responseText = e.target.responseText;
+  var responseURL = e.target.responseURL;
+
+  if (responseText.includes('html')) {
+    src = processText(responseText);
+  } else {
+    src = responseURL;
   }
 
-  console.info(`Found source: ${src}`);
-
-  chrome.downloads.download({url: src});
+  if (src) {
+    if ( src.indexOf('chrome-extension') >= 0 ) {
+      // The following line of code matches the base URL, however it does not
+      // match trailing directories which may be required:
+      // var baseURL = e.target.responseURL.match(/^.+?[^\/:](?=[?\/]|$)/);
+      var splitResponseURL = responseURL.split('/');
+      var baseURL = responseURL.replace(splitResponseURL[splitResponseURL.length - 1], '');
+      src = src.replace(/chrome-extension:\/\/\w+\/(views\/)?/, '')
+      src = baseURL + src;
+    }
+    console.info(`Found image source: ${src}`);
+    chrome.downloads.download({url: src});
+  } else {
+    console.warn(`Unable to find image source: ${responseURL}`);
+  }
 };
 
 /**
