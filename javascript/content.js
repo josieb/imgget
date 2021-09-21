@@ -12,20 +12,16 @@ chrome.runtime.sendMessage({
  */
 chrome.runtime.onMessage.addListener(function(message, sender, response) {
   if ( (message.from === 'popup') && (message.subject === 'DOMInfo') ) {
-    var domInfo = [];
     var images = document.getElementsByTagName('img');
-    for (var i = 0; i < images.length; i++) {
-      var a = images[i].closest('a');
-      var url;
-      var src;
+    var domInfo = [];
+    var a;
+    var url;
+    var src;
 
-      if (a) {
-        if (a.href) {
-          url = a.href;
-        } else {
-          url = a.getAttribute('href');
-        }
-      }
+    for (var i = 0; i < images.length; i++) {
+      a = images[i].closest('a');
+      url = null;
+      src = null;
 
       if (images[i].src) {
         src = images[i].src;
@@ -34,7 +30,17 @@ chrome.runtime.onMessage.addListener(function(message, sender, response) {
       } else if (images[i].getAttribute('src')) {
         src = images[i].getAttribute('src');
       } else {
-        console.log(`Unable to find thumbnail: ${images[i].src}`)
+        console.info(`Unable to find thumbnail: ${images[i].src}`)
+      }
+
+      if (a) {
+        if (a.href) {
+          url = a.href;
+        } else {
+          url = a.getAttribute('href');
+        }
+      } else {
+        url = src;
       }
 
       if ( url && (url.indexOf('http') >= 0) ) {
@@ -43,7 +49,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, response) {
           src: src
         });
       } else {
-        console.log(`Unable to find parent url: ${images[i].src}`);
+        console.info(`Unable to find url: ${images[i].src}`);
       }
     }
     response(domInfo);
