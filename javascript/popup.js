@@ -155,6 +155,7 @@ var handleDOMInfo = function(domInfo) {
 
     thumbChecks[ thumb.src ] = {
       'download': false,
+      'src': thumb.src,
       'url': thumb.url
     };
   }
@@ -186,6 +187,23 @@ window.onload = function() {
         request.open('GET', thumbChecks[id].url, true);
         request.onload = handleLoad;
         request.send(null);
+      }
+    }
+  };
+
+  document.getElementById('download-raw').onclick = function() {
+    var src;
+
+    for (var id in thumbChecks) {
+      if (thumbChecks[id].download) {
+        if (thumbChecks[id].src) {
+          src = thumbChecks[id].src;
+          //src = src.replace(/\?.*/, '')
+          console.info(`Found image source: ${src}`);
+          chrome.downloads.download({url: src});
+        } else {
+          console.warn(`Unable to find image source: ${thumbChecks[id].url}}`);
+        }
       }
     }
   };
