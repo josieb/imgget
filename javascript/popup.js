@@ -4,13 +4,13 @@
  * @type {hashmap}
  * @public
  */
-var thumbChecks = {};
+const thumbChecks = {};
 
 /**
  * @type {array}
  * @public
  */
-var imageSelectors = [
+const imageSelectors = [
   'pic img img-responsive'
 ];
 
@@ -18,7 +18,7 @@ var imageSelectors = [
  * @type {array}
  * @public
  */
-var srcSelectors = [
+const srcSelectors = [
   '#img',
   '#image',
   '#imageid',
@@ -37,13 +37,13 @@ var srcSelectors = [
  * @return {String}
  * @public
  */
-var processText = function(responseText) {
-  var src;
-  var documentBuffer = document.createElement('body');
+const processText = (responseText) => {
+  let src;
+  let documentBuffer = document.createElement('body');
   documentBuffer.innerHTML = responseText;
 
   /* Try to find a well-formed image source. */
-  var image = document.evaluate('//img[@id][@style]', documentBuffer, null, 9, null).singleNodeValue;
+  let image = document.evaluate('//img[@id][@style]', documentBuffer, null, 9, null).singleNodeValue;
 
   if (image) {
     if (image.src) {
@@ -55,7 +55,7 @@ var processText = function(responseText) {
     }
   } else {
     try {
-      for (var i = 0; i < srcSelectors.length; i++) {
+      for (let i = 0; i < srcSelectors.length; i++) {
         if (src) break;
         image = documentBuffer.querySelector(srcSelectors[i]);
 
@@ -93,10 +93,10 @@ var processText = function(responseText) {
  * @param {ProgressEvent} e The XHR ProgressEvent.
  * @public
  */
-var handleLoad = function(e) {
-  var src;
-  var responseText = e.target.responseText;
-  var responseURL = e.target.responseURL;
+const handleLoad = (e) => {
+  let src;
+  const responseText = e.target.responseText;
+  const responseURL = e.target.responseURL;
 
   if (responseText.includes('html')) {
     src = processText(responseText);
@@ -108,9 +108,9 @@ var handleLoad = function(e) {
     if ( src.indexOf('chrome-extension') >= 0 ) {
       // The following line of code matches the base URL, however it does not
       // match trailing directories which may be required:
-      // var baseURL = e.target.responseURL.match(/^.+?[^\/:](?=[?\/]|$)/);
-      var splitResponseURL = responseURL.split('/');
-      var baseURL = responseURL.replace(splitResponseURL[splitResponseURL.length - 1], '');
+      // const baseURL = e.target.responseURL.match(/^.+?[^\/:](?=[?\/]|$)/);
+      const splitResponseURL = responseURL.split('/');
+      const baseURL = responseURL.replace(splitResponseURL[splitResponseURL.length - 1], '');
       src = src.replace(/chrome-extension:\/\/\w+\/(views\/)?/, '')
       src = baseURL + src;
     }
@@ -127,28 +127,28 @@ var handleLoad = function(e) {
  * @param {hashmap} domInfo
  * @public
  */
-var handleDOMInfo = function(domInfo) {
-  var thumbsList = document.getElementById('thumbs');
+const handleDOMInfo = (domInfo) => {
+  let thumbsList = document.getElementById('thumbs');
   while (thumbsList.children.length > 1) {
     thumbsList.removeChild(thumbsList.children[thumbsList.children.length - 1])
   }
 
-  for (var i = 0; i < domInfo.length; i++) {
-    var checkbox = document.createElement('input');
+  for (let i = 0; i < domInfo.length; i++) {
+    let checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.checked = false;
 
-    var thumb = document.createElement('img');
+    let thumb = document.createElement('img');
     thumb.src = domInfo[i].src;
     thumb.url = domInfo[i].url;
 
-    thumb.onclick = function() {
-      var sibling = this.previousSibling;
+    thumb.onclick = () => {
+      let sibling = this.previousSibling;
       sibling.checked = !sibling.checked;
       thumbChecks[this.src].download = sibling.checked;
     }
 
-    var listItem = document.createElement('li');
+    let listItem = document.createElement('li');
     listItem.appendChild(checkbox);
     listItem.appendChild(thumb);
     thumbsList.appendChild(listItem);
@@ -162,8 +162,8 @@ var handleDOMInfo = function(domInfo) {
 };
 
 /* Once the document's DOM is ready, send a message to the content. */
-document.addEventListener('DOMContentLoaded', function() {
-  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+document.addEventListener('DOMContentLoaded', () => {
+  chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
     chrome.tabs.sendMessage(
       tabs[0].id,
       {from: 'popup', subject: 'DOMInfo'},
@@ -171,19 +171,19 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-document.addEventListener('click', function() {
-  var numSelected = 0;
-  for (var id in thumbChecks) {
+document.addEventListener('click', () => {
+  let numSelected = 0;
+  for (let id in thumbChecks) {
     if (thumbChecks[id].download) numSelected++;
   }
   document.getElementById('num-selected').innerHTML = 'selected: ' + numSelected;
 });
 
-window.onload = function() {
-  document.getElementById('download').onclick = function() {
-    for (var id in thumbChecks) {
+window.onload = () => {
+  document.getElementById('download').onclick = () => {
+    for (let id in thumbChecks) {
       if (thumbChecks[id].download) {
-        var request = new XMLHttpRequest();
+        let request = new XMLHttpRequest();
         request.open('GET', thumbChecks[id].url, true);
         request.onload = handleLoad;
         request.send(null);
@@ -191,10 +191,10 @@ window.onload = function() {
     }
   };
 
-  document.getElementById('download-raw').onclick = function() {
-    var src;
+  document.getElementById('download-raw').onclick = () => {
+    let src;
 
-    for (var id in thumbChecks) {
+    for (let id in thumbChecks) {
       if (thumbChecks[id].download) {
         if (thumbChecks[id].src) {
           src = thumbChecks[id].src;
@@ -208,20 +208,20 @@ window.onload = function() {
     }
   };
 
-  document.getElementById('select-all').onclick = function() {
-    var inputs = document.getElementsByTagName('input');
-    for (var i = 0; i < inputs.length; i++) {
+  document.getElementById('select-all').onclick = () => {
+    let inputs = document.getElementsByTagName('input');
+    for (let i = 0; i < inputs.length; i++) {
       inputs[i].checked = true;
-      var sibling = inputs[i].nextSibling;
+      let sibling = inputs[i].nextSibling;
       thumbChecks[sibling.src].download = true;
     }
   };
 
-  document.getElementById('select-none').onclick = function() {
-    var inputs = document.getElementsByTagName('input');
-    for (var i = 0; i < inputs.length; i++) {
+  document.getElementById('select-none').onclick = () => {
+    let inputs = document.getElementsByTagName('input');
+    for (let i = 0; i < inputs.length; i++) {
       inputs[i].checked = false;
-      var sibling = inputs[i].nextSibling;
+      let sibling = inputs[i].nextSibling;
       thumbChecks[sibling.src].download = false;
     }
   };

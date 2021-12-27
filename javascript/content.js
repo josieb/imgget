@@ -10,15 +10,15 @@ chrome.runtime.sendMessage({
  * Listen for messages from the popup. Upon getting a message, search the DOM
  * for hyperlinks, and respond with urls.
  */
-chrome.runtime.onMessage.addListener(function(message, sender, response) {
+chrome.runtime.onMessage.addListener((message, sender, response) => {
   if ( (message.from === 'popup') && (message.subject === 'DOMInfo') ) {
-    var images = document.getElementsByTagName('img');
-    var domInfo = [];
-    var a;
-    var url;
-    var src;
+    const images = document.getElementsByTagName('img');
+    let domInfo = [];
+    let a;
+    let url;
+    let src;
 
-    for (var i = 0; i < images.length; i++) {
+    for (let i = 0; i < images.length; i++) {
       a = images[i].closest('a');
       url = null;
       src = null;
