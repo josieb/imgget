@@ -143,10 +143,10 @@ const handleDOMInfo = (domInfo) => {
     thumb.url = domInfo[i].url;
 
     thumb.onclick = () => {
-      let sibling = this.previousSibling;
+      let sibling = thumb.previousSibling;
       sibling.checked = !sibling.checked;
-      thumbChecks[this.src].download = sibling.checked;
-    }
+      thumbChecks[thumb.src].download = sibling.checked;
+    };
 
     let listItem = document.createElement('li');
     listItem.appendChild(checkbox);
@@ -188,7 +188,7 @@ window.onload = () => {
         request.onload = handleLoad;
         request.send(null);
       }
-    }
+    };
   };
 
   document.getElementById('download-raw').onclick = () => {
