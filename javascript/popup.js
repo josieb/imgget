@@ -10,14 +10,6 @@ const thumbChecks = {};
  * @type {array}
  * @public
  */
-const imageSelectors = [
-  'pic img img-responsive'
-];
-
-/**
- * @type {array}
- * @public
- */
 const srcSelectors = [
   '#img',
   '#image',
@@ -29,8 +21,23 @@ const srcSelectors = [
   'img.pic,img.img,img.img-responsive',
   '.centred_resized',
   '.main-image',
-  '.FFVAD'
+  '.FFVAD',
+  '.image-viewer-main,image-viewer-container',
+  '.disableSave-mobile'
 ];
+
+/**
+ * @param {Element}
+ * @return {Element}
+ * @public
+ */
+const finalChild = (node) => {
+  if (node.firstElementChild !== null) {
+    return ( finalChild(node.firstElementChild) );
+  } else {
+    return (node);
+  }
+};
 
 /**
  * @param {String} responseText
@@ -43,33 +50,38 @@ const processText = (responseText) => {
   documentBuffer.innerHTML = responseText;
 
   /* Try to find a well-formed image source. */
-  let image = document.evaluate('//img[@id][@style]', documentBuffer, null, 9, null).singleNodeValue;
+  let result = document.evaluate('//img[@id][@style]', documentBuffer, null, 9, null).singleNodeValue;
 
-  if (image) {
-    if (image.src) {
-      src = image.src;
-    } else if (image.getAttribute('data-url')) {
-      src = image.getAttribute('data-url');
-    } else if (image.getAttribute('src')) {
-      src = image.getAttribute('src');
+  if (result) {
+    if (result.src) {
+      src = result.src;
+    } else if (result.getAttribute('data-url')) {
+      src = result.getAttribute('data-url');
+    } else if (result.getAttribute('src')) {
+      src = result.getAttribute('src');
     }
   } else {
     try {
       for (let i = 0; i < srcSelectors.length; i++) {
         if (src) break;
-        image = documentBuffer.querySelector(srcSelectors[i]);
+        let result = documentBuffer.querySelector(srcSelectors[i]);
 
-        if (image) {
-          if (image.src !== undefined) {
-            src = image.src;
-          } else if ( (image.firstChild !== null) && (image.firstChild.src !== undefined) ) {
-            src = image.firstChild.src;
+        if (result) {
+          if (result.src !== undefined) {
+            src = result.src;
+          } else {
+            let child = finalChild(result);
+
+            if (child.src !== undefined) {
+              src = child.src;
+            }
           }
         }
 
         /* Try to get the full-sized image. */
         if (src) {
           src = src.replace(/(\.md\.)|(\.sm\.)/, '.');
+          src = src.replace(/\?w=.*/, '?');
         }
 
         if (src && srcSelectors[i] === '.view_photo') {
@@ -109,10 +121,15 @@ const handleLoad = (e) => {
       // The following line of code matches the base URL, however it does not
       // match trailing directories which may be required:
       // const baseURL = e.target.responseURL.match(/^.+?[^\/:](?=[?\/]|$)/);
+
+      /**
       const splitResponseURL = responseURL.split('/');
       const baseURL = responseURL.replace(splitResponseURL[splitResponseURL.length - 1], '');
-      src = src.replace(/chrome-extension:\/\/\w+\/(views\/)?/, '')
+      src = src.replace(/chrome-extension:\/\/(\w+\/views\/)?/, '')
       src = baseURL + src;
+      */
+
+      src = src.replace(/chrome-extension:\/\/(\w+\/views\/)?/, 'https://')
     }
     console.info(`Found image source: ${src}`);
     chrome.downloads.download({url: src});
