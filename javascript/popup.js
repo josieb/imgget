@@ -98,17 +98,15 @@ const processText = (responseText) => {
 };
 
 /**
- * Handle the 'onload' event of our XHR request. The responseText of the event
- * should be an HTML document. Once this is parsed into a DOMElement, we
- * search it for the source of the demanded image, and then download the image.
+ * Search the response for the source of the requested image and download it.
  *
- * @param {ProgressEvent} e The XHR ProgressEvent.
+ * @param {Response} res
  * @public
  */
-const handleLoad = (e) => {
+const handleLoad = async (res) => {
   let src;
-  const responseText = e.target.responseText;
-  const responseURL = e.target.responseURL;
+  const responseText = await res.text();
+  const responseURL = res.url;
 
   if (responseText.includes('html')) {
     src = processText(responseText);
@@ -197,13 +195,11 @@ document.addEventListener('click', () => {
 });
 
 window.onload = () => {
-  document.getElementById('download').onclick = () => {
+  document.getElementById('download').onclick = async () => {
     for (let id in thumbChecks) {
       if (thumbChecks[id].download) {
-        let request = new XMLHttpRequest();
-        request.open('GET', thumbChecks[id].url, true);
-        request.onload = handleLoad;
-        request.send(null);
+        await fetch(thumbChecks[id].url)
+          .then((res) => handleLoad(res));
       }
     };
   };
