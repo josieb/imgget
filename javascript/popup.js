@@ -77,21 +77,42 @@ const processText = (responseText) => {
             }
           }
         }
-
-        /* Try to get the full-sized image. */
-        if (src) {
-          src = src.replace(/(\.md\.)|(\.sm\.)/, '.');
-          src = src.replace(/\?w=.*/, '?');
-        }
-
-        if (src && srcSelectors[i] === '.view_photo') {
-          src = src.replace('\/tn-', '\/');
-        }
       }
     } catch (error) {
       console.warn(error);
       return;
     }
+  }
+
+  return src;
+};
+
+/**
+ * Try to get the full-sized image.
+ * 
+ * @param {String} responseText
+ * @return {String}
+ * @public
+ */
+const postProcessText = (responseText) => {
+  let src = responseText;
+  src = src.replace(/(\.md\.)|(\.sm\.)/, '.');
+  src = src.replace(/\?w=.*/, '?');
+  src = src.replace('\/tn-', '\/');
+  //src = src.replace(/\?.*/, '');
+
+  if ( src.indexOf('chrome-extension') >= 0 ) {
+    // The following line of code matches the base URL, however it does not
+    // match trailing directories which may be required:
+    // const baseURL = e.target.responseURL.match(/^.+?[^\/:](?=[?\/]|$)/);
+
+    /**
+    const splitResponseURL = responseURL.split('/');
+    const baseURL = responseURL.replace(splitResponseURL[splitResponseURL.length - 1], '');
+    src = src.replace(/chrome-extension:\/\/(\w+\/views\/)?/, '')
+    src = baseURL + src;
+    */
+    src = src.replace(/chrome-extension:\/\/(\w+\/views\/)?/, 'https://')
   }
 
   return src;
@@ -115,20 +136,7 @@ const handleLoad = async (res) => {
   }
 
   if (src) {
-    if ( src.indexOf('chrome-extension') >= 0 ) {
-      // The following line of code matches the base URL, however it does not
-      // match trailing directories which may be required:
-      // const baseURL = e.target.responseURL.match(/^.+?[^\/:](?=[?\/]|$)/);
-
-      /**
-      const splitResponseURL = responseURL.split('/');
-      const baseURL = responseURL.replace(splitResponseURL[splitResponseURL.length - 1], '');
-      src = src.replace(/chrome-extension:\/\/(\w+\/views\/)?/, '')
-      src = baseURL + src;
-      */
-
-      src = src.replace(/chrome-extension:\/\/(\w+\/views\/)?/, 'https://')
-    }
+    src = postProcessText(src);
     console.info(`Found image source: ${src}`);
     chrome.downloads.download({url: src});
   } else {
@@ -211,7 +219,7 @@ window.onload = () => {
       if (thumbChecks[id].download) {
         if (thumbChecks[id].src) {
           src = thumbChecks[id].src;
-          //src = src.replace(/\?.*/, '')
+          src = postProcessText(src);
           console.info(`Found image source: ${src}`);
           chrome.downloads.download({url: src});
         } else {
