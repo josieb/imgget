@@ -151,6 +151,8 @@ const handleLoad = async (res) => {
  * @public
  */
 const handleDOMInfo = (domInfo) => {
+  if (!domInfo) { return; }
+
   let thumbsList = document.getElementById('thumbs');
   while (thumbsList.children.length > 1) {
     thumbsList.removeChild(thumbsList.children[thumbsList.children.length - 1])
