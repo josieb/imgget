@@ -140,7 +140,7 @@ const handleLoad = async (res) => {
     console.info(`Found image source: ${src}`);
     chrome.downloads.download({url: src});
   } else {
-    console.warn(`Unable to find image source: ${responseURL}`);
+    console.info(`Unable to find image source: ${responseURL}`);
   }
 };
 
@@ -164,6 +164,7 @@ const handleDOMInfo = (domInfo) => {
     checkbox.checked = false;
 
     let thumb = document.createElement('img');
+    thumb.setAttribute("crossorigin", "anonymous");
     thumb.src = domInfo[i].src;
     thumb.url = domInfo[i].url;
 
@@ -209,7 +210,8 @@ window.onload = () => {
     for (let id in thumbChecks) {
       if (thumbChecks[id].download) {
         await fetch(thumbChecks[id].url)
-          .then((res) => handleLoad(res));
+          .then((res) => handleLoad(res))
+          .catch((error) => console.info(error));
       }
     };
   };
@@ -225,7 +227,7 @@ window.onload = () => {
           console.info(`Found image source: ${src}`);
           chrome.downloads.download({url: src});
         } else {
-          console.warn(`Unable to find image source: ${thumbChecks[id].url}}`);
+          console.info(`Unable to find image source: ${thumbChecks[id].url}}`);
         }
       }
     }
