@@ -1,18 +1,39 @@
 body {
   min-width: 370px;	
   overflow-x: hidden;
+  margin: 0;
+  padding: 0;
 }
 
-ul
-{
+ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
 }
 
 img {
-  margin: 5px;
-  border: 2px solid black;
+  margin: 8px;
+  border: 1px solid black;
   vertical-align: middle;
   max-width: 400px;
+}
+
+.toolbar {
+  position: fixed;
+  top: 0px;
+  z-index: 1;
+  width: 100%;
+  height: 24px;
+  background-color: white;
+  display: inline-flex;
+  border-bottom: 1px solid black;
+}
+
+#num-selected {
+  margin-left: auto;
+}
+
+.content {
+  position: relative;
+  top: 24px;
 }

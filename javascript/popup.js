@@ -202,7 +202,7 @@ document.addEventListener('click', () => {
   for (let id in thumbChecks) {
     if (thumbChecks[id].download) numSelected++;
   }
-  document.getElementById('num-selected').innerHTML = 'selected: ' + numSelected;
+  document.getElementById('num-selected').innerHTML = `(${numSelected})`;
 });
 
 window.onload = () => {

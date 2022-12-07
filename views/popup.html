@@ -13,20 +13,16 @@
         <script src="/javascript/popup.js"></script>
     </head>
     <body>
-        <div>
+        <div class="toolbar">
             <button id="select-all">select all</button>
             <button id="select-none">select none</button>
-            <br/>
-        </div>
-        <div>
-            <ul id="thumbs">
-            </ul>
-        </div>
-        <div>
             <button id="download">download</button>
             <button id="download-raw">download raw</button>
-            <p id="num-selected"></p>
-            <p id="num-downloaded"></p>
+            <span id="num-selected"></span>
+        </div>
+        <div class="content">
+            <ul id="thumbs">
+            </ul>
         </div>
     </body>
 </html>
