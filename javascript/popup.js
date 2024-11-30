@@ -23,7 +23,8 @@ const srcSelectors = [
   '.main-image',
   '.FFVAD',
   '.image-viewer-main,image-viewer-container',
-  '.disableSave-mobile'
+  '.disableSave-mobile',
+  '.lightgallery'
 ];
 
 /**
