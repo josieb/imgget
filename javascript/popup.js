@@ -97,7 +97,9 @@ const processText = (responseText) => {
  */
 const postProcessText = (responseText) => {
   let src = responseText;
-  src = src.replace(/(\.md\.)|(\.sm\.)/, '.');
+  src = src.replace(/(\.md\.)/, '.');
+  src = src.replace(/(\.sm\.)/, '.');
+  src = src.replace(/(\.th\.)/, '.');
   src = src.replace(/\?w=.*/, '?');
   src = src.replace('\/tn-', '\/');
   //src = src.replace(/\?.*/, '');
